@@ -28,6 +28,16 @@ def trace(show_counter=False, show_types=False):
         return inner_wrapper
     return outer_wrapper
 
+def trace_class(*args, **kwargs):
+    def wrapper(cls):
+        for member in dir(cls):
+            if member in ('__class__', '__repr__', '__str__'): continue
+            if callable(getattr(cls, member)):
+                traced_method = trace(*args, **kwargs)(getattr(cls, member))
+                setattr(cls, member, traced_method)
+        return cls
+    return wrapper
+
 if __name__ == '__main__':
     for sc in [True, False]:
         for st in [True, False]:
