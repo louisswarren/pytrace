@@ -31,7 +31,9 @@ def trace(show_counter=False, show_types=False):
 def trace_class(*args, **kwargs):
     def wrapper(cls):
         for member in dir(cls):
-            if member in ('__class__', '__repr__', '__str__'): continue
+            if member in ('__class__', '__getattribute__', '__repr__',
+                    '__setattr__', '__str__'):
+                continue
             if callable(getattr(cls, member)):
                 traced_method = trace(*args, **kwargs)(getattr(cls, member))
                 setattr(cls, member, traced_method)
@@ -47,3 +49,14 @@ if __name__ == '__main__':
                     return 1
                 return fib(n-2) + fib(n-1)
             fib(6)
+
+    @trace_class()
+    class foo:
+        def bar(self, x):
+            return x * x
+        def __repr__(self):
+            return "foo()"
+    baz = foo()
+    baz.bar(2)
+
+
